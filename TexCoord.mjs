@@ -121,7 +121,6 @@ export default function TexCoordDrawer(mesh) {
     const pointProg = createProgram(gl, pointVertex, pointFragment);
 
     let point = [0.5, 0.5];
-
     let count = 0;
 
 
@@ -149,6 +148,33 @@ export default function TexCoordDrawer(mesh) {
             mesh.point = point;
             document.dispatchEvent(new Event('draw'));
         }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        let moveDir = [0, 0];
+        let speed = 0.01;
+        if(event.key == 'w') {
+            moveDir[1] += speed;
+        }
+
+        if(event.key == "s") {
+            moveDir[1] -= speed;
+        }
+
+        if(event.key == "d") {
+            moveDir[0] += speed;
+        }
+
+        if(event.key == "a") {
+            moveDir[0] -= speed;
+        }
+
+        point[0] += moveDir[0];
+        point[1] += moveDir[1];
+
+        point[0] = Math.max(Math.min(point[0], 1.0), 0.0);
+        point[1] = Math.max(Math.min(point[1], 1.0), 0.0);
+        mesh.point = point;
     });
 
     this.init = function () {
