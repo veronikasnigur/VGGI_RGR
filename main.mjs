@@ -2,11 +2,13 @@
 
 import Model from "./model.mjs";
 import TrackballRotator from "./Utils/trackball-rotator.mjs";
+import TexCoordDrawer from "./TexCoord.mjs";
 
 let gl;                         // The WebGL context.
 let surface;                    // A surface model
 let shProgram;                  // A shader program
 let spaceball;                  // A SimpleRotator object that lets the user rotate the view by mouse.
+let uvDrawer;
 
 // Параметри конуса
 let a = 2;  // Радіус сфери
@@ -89,6 +91,8 @@ function initGL() {
     shProgram.iDiffuseTexture = gl.getUniformLocation(prog, "diffuseTexture");
     shProgram.iNormalTexture = gl.getUniformLocation(prog, "normalTexture");
     shProgram.iSpecularTexture = gl.getUniformLocation(prog, "specularTexture");
+    shProgram.iPoint = gl.getUniformLocation(prog, "point");
+    shProgram.iAngle = gl.getUniformLocation(prog, "angle");
 
     // Оновлюємо сегменти з повзунків
     uSegments = parseInt(document.getElementById('uSegments').value, 10);
@@ -132,6 +136,8 @@ function draw() {
 
     // Малюємо поверхню
     surface.Draw();
+
+    uvDrawer.draw();
 }
 
 // Оновлення кількості сегментів по U та V
@@ -144,6 +150,8 @@ function updateSurface() {
     surface.uSegments = uSegments;  // Оновлюємо сегменти в існуючій моделі
     surface.vSegments = vSegments;
     surface.BufferData();  // Оновлюємо буфери з новими сегментами
+
+    uvDrawer.update();
 
     // Перемалювання поверхні після оновлення
     draw();
@@ -177,6 +185,7 @@ function createProgram(gl, vShader, fShader) {
 
 document.getElementById('uSegments').addEventListener('input', () => { updateSliderValue('uSegments'); });
 document.getElementById('vSegments').addEventListener('input', () => { updateSliderValue('vSegments'); });
+document.getElementById('Angle').addEventListener('input', () => { updateSliderValue('Angle'); draw(); });
 document.getElementById('UpdateButton').addEventListener('click', updateSurface);
 document.addEventListener('draw', draw);
 
@@ -191,6 +200,8 @@ function init() {
 
     initGL();
     spaceball = new TrackballRotator(canvas, draw, 0);
+    uvDrawer = new TexCoordDrawer(surface);
+    uvDrawer.init();
     animate();  // Запускаємо анімацію
 }
 
