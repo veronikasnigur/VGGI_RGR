@@ -160,6 +160,10 @@ export default function Model(gl, shProgram, a, p, uSegments, vSegments) {
     this.idTextureNormal = LoadTexture(gl, "./textures/normal.jpg");
     this.idTextureSpecular = LoadTexture(gl, "./textures/specular.jpg");
 
+    this.point = [0.5, 0.5];
+    this.uvBuffer = [];
+    this.indexBuffer = [];
+
     // Параметричні рівняння поверхні
     this.surfaceFunction = function(u, v) {
         let omega = this.p * u;
@@ -229,6 +233,9 @@ export default function Model(gl, shProgram, a, p, uSegments, vSegments) {
         // Буфер UV
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iUVBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(surfaceData.uvs), gl.STATIC_DRAW);
+
+        this.uvBuffer = surfaceData.base.uvs;
+        this.indexBuffer = surfaceData.base.indices;
     };
 
     this.Draw = function() {
@@ -260,6 +267,10 @@ export default function Model(gl, shProgram, a, p, uSegments, vSegments) {
         
         gl.activeTexture(gl.TEXTURE2);
         gl.bindTexture(gl.TEXTURE_2D, this.idTextureSpecular);
+
+        // Параметри для повороту
+        gl.uniform2fv(shProgram.iPoint, this.point);
+        gl.uniform1f(shProgram.iAngle, parseFloat(document.getElementById('Angle').value) * (Math.PI / 180.0));
 
         // Малюємо поверхню
         gl.drawArrays(gl.TRIANGLES, 0, this.count);
